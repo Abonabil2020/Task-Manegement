@@ -105,7 +105,7 @@
 </style>
 </head>
 <body>
-
+ 
 <header class="header">
   <div class="header-brand">
     <div class="header-icon">🏥</div>
@@ -119,7 +119,7 @@
     <div class="header-date" id="currentDate">⏰ ...</div>
   </div>
 </header>
-
+ 
 <main class="main">
   <div class="stats">
     <div class="stat-card"><div class="stat-icon teal">📋</div><div><div class="stat-num" id="totalCount">—</div><div class="stat-label">إجمالي المهام</div></div></div>
@@ -127,7 +127,7 @@
     <div class="stat-card"><div class="stat-icon red">⏳</div><div><div class="stat-num" id="pendingCount">—</div><div class="stat-label">قيد التنفيذ</div></div></div>
     <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num" id="doneCount">—</div><div class="stat-label">مكتملة</div></div></div>
   </div>
-
+ 
   <div class="content-grid">
     <div class="card">
       <div class="card-header">
@@ -144,15 +144,6 @@
           <input type="date" id="taskDate" class="form-input">
         </div>
         <div class="form-group">
-          <label class="form-label">الأولوية *</label>
-          <div class="priority-grid">
-            <button class="priority-btn urgent selected" onclick="selectPriority(this,'عاجل')">🔴 عاجل</button>
-            <button class="priority-btn high" onclick="selectPriority(this,'عالية')">🟠 عالية</button>
-            <button class="priority-btn medium" onclick="selectPriority(this,'متوسطة')">🟡 متوسطة</button>
-            <button class="priority-btn low" onclick="selectPriority(this,'منخفضة')">🟢 منخفضة</button>
-          </div>
-        </div>
-        <div class="form-group">
           <label class="form-label">الملاحظات</label>
           <textarea id="taskNotes" class="form-textarea" placeholder="أي تفاصيل أو تعليمات..."></textarea>
         </div>
@@ -161,7 +152,7 @@
         </button>
       </div>
     </div>
-
+ 
     <div class="card">
       <div class="card-header" style="justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -189,7 +180,6 @@
             <tr>
               <th>اسم المهمة</th>
               <th>التاريخ</th>
-              <th>الأولوية</th>
               <th>الحالة</th>
               <th>الملاحظات</th>
               <th>الإجراءات</th>
@@ -208,57 +198,72 @@
     </div>
   </div>
 </main>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+ 
+  const firebaseConfig = {
+    apiKey: "AIzaSyAaIDxbnRl10DehR6vG-PkiiLszyQeSSnw",
+    authDomain: "medical-dashboard-3b42e.firebaseapp.com",
+    projectId: "medical-dashboard-3b42e",
+    databaseURL: "https://medical-dashboard-3b42e-default-rtdb.firebaseio.com",
+    storageBucket: "medical-dashboard-3b42e.firebasestorage.app",
+    messagingSenderId: "741310836869",
+    appId: "1:741310836869:web:5ca21da38d6ab24b73b9ec"
+  };
+ 
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const tasksRef = ref(db, 'tasks');
+ 
+  window._fbSet = (data) => set(tasksRef, data);
+  window._fbListen = (cb) => onValue(tasksRef, snap => cb(snap.val()));
+</script>
+ 
 <script>
   let tasks = [];
   let currentFilter = 'الكل';
   let selectedPriority = 'عاجل';
-  const STORAGE_KEY = 'medical_complex_tasks';
-
-  // ---------- Storage ----------
+ 
+  // ---------- Firebase Storage ----------
   async function saveTasks() {
     try {
-      await window.storage.set(STORAGE_KEY, JSON.stringify(tasks), true); // shared=true
+      await window._fbSet(tasks.length ? tasks : null);
     } catch(e) { console.error('Save error', e); }
   }
-
-  async function loadTasks() {
-    try {
-      const res = await window.storage.get(STORAGE_KEY, true); // shared=true
-      if (res && res.value) {
-        tasks = JSON.parse(res.value);
-      } else {
-        tasks = [];
-      }
-    } catch(e) {
-      tasks = [];
-    }
-    renderTable();
+ 
+  function loadTasks() {
+    window._fbListen(data => {
+      tasks = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+      renderTable();
+    });
   }
-
+ 
   // ---------- UI ----------
   function selectPriority(btn, val) {
     document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedPriority = val;
   }
-
+ 
   function setFilter(f, el) {
     currentFilter = f;
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     renderTable();
   }
-
+ 
   function formatDate(dt) {
     if (!dt) return '—';
     const [y,m,d] = dt.split('-');
     const date = new Date(+y, +m-1, +d);
     return date.toLocaleDateString('ar-EG', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   }
-
+ 
   function buildGCalLink(task) {
     const dateStr = task.date.replace(/-/g,''); // YYYYMMDD
     const params = new URLSearchParams({
@@ -269,13 +274,13 @@
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
-
+ 
   function renderTable() {
     const search = document.getElementById('searchBox').value.toLowerCase();
     const body = document.getElementById('taskTableBody');
     const empty = document.getElementById('emptyState');
     const pOrder = { 'عاجل':0, 'عالية':1, 'متوسطة':2, 'منخفضة':3 };
-
+ 
     let filtered = tasks.filter(t => {
       const matchSearch = t.name.toLowerCase().includes(search) || (t.notes||'').toLowerCase().includes(search);
       const matchFilter =
@@ -285,13 +290,13 @@
         t.priority === currentFilter;
       return matchSearch && matchFilter;
     });
-
+ 
     filtered.sort((a,b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
       if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
       return new Date(a.date) - new Date(b.date);
     });
-
+ 
     if (filtered.length === 0) {
       body.innerHTML = '';
       empty.style.display = 'block';
@@ -301,7 +306,6 @@
         <tr>
           <td><div class="task-name ${t.done?'done':''}">${t.name}</div></td>
           <td><span class="date-badge">📅 ${formatDate(t.date)}</span></td>
-          <td><span class="priority-tag ${t.priority}"><span class="priority-dot"></span>${t.priority}</span></td>
           <td><span class="status-chip ${t.done?'done':'pending'}">${t.done?'✅ مكتملة':'⏳ جارية'}</span></td>
           <td><div class="notes-text" title="${t.notes||''}">${t.notes||'—'}</div></td>
           <td>
@@ -314,28 +318,28 @@
         </tr>
       `).join('');
     }
-
+ 
     document.getElementById('totalCount').textContent = tasks.length;
     document.getElementById('urgentCount').textContent = tasks.filter(t=>t.priority==='عاجل').length;
     document.getElementById('pendingCount').textContent = tasks.filter(t=>!t.done).length;
     document.getElementById('doneCount').textContent = tasks.filter(t=>t.done).length;
   }
-
+ 
   async function addTask() {
     const name = document.getElementById('taskName').value.trim();
     const date = document.getElementById('taskDate').value;
     const notes = document.getElementById('taskNotes').value.trim();
     if (!name) { showToast('⚠️ يرجى إدخال اسم المهمة'); return; }
     if (!date) { showToast('⚠️ يرجى تحديد التاريخ'); return; }
-
+ 
     const btn = document.getElementById('addBtn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> جاري الحفظ...';
-
+ 
     const task = {
       id: Date.now().toString(),
       name, date,
-      priority: selectedPriority,
+      priority: 'متوسطة',
       notes,
       done: false,
       addedAt: new Date().toISOString()
@@ -343,7 +347,7 @@
     tasks.unshift(task);
     await saveTasks();
     renderTable();
-
+ 
     document.getElementById('taskName').value = '';
     document.getElementById('taskDate').value = '';
     document.getElementById('taskNotes').value = '';
@@ -351,7 +355,7 @@
     btn.innerHTML = '<span>✨</span> إضافة للجدول المشترك';
     showToast('✅ تمت الإضافة ومزامنتها للجميع!');
   }
-
+ 
   async function toggleDone(id) {
     const t = tasks.find(t=>t.id===id);
     if (!t) return;
@@ -360,44 +364,44 @@
     renderTable();
     showToast(t.done ? '✅ مكتملة وتمت المزامنة' : '↩️ تم إلغاء الإكمال');
   }
-
+ 
   async function deleteTask(id) {
     tasks = tasks.filter(t=>t.id!==id);
     await saveTasks();
     renderTable();
     showToast('🗑️ تم الحذف وتمت المزامنة');
   }
-
+ 
   function openGCal(id) {
     const t = tasks.find(t=>t.id===id);
     if (t) { window.open(buildGCalLink(t),'_blank'); showToast('📆 جاري فتح تقويم Google...'); }
   }
-
+ 
   function showToast(msg) {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
     toast.classList.add('show');
     setTimeout(()=>toast.classList.remove('show'), 2800);
   }
-
+ 
   function defaultDatetime() {
     const d = new Date(Date.now()+3600000);
     d.setMinutes(0,0,0);
     return d.toISOString().slice(0,16);
   }
-
+ 
   function updateClock() {
     const now = new Date();
     document.getElementById('currentDate').textContent =
       '📅 ' + now.toLocaleDateString('ar-EG',{weekday:'long',month:'long',day:'numeric'}) +
       ' — ' + now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
   }
-
+ 
   // Auto-refresh every 30 seconds to pick up changes from the other device
   setInterval(loadTasks, 30000);
   updateClock();
   setInterval(updateClock, 60000);
-  loadTasks();
+  setTimeout(loadTasks, 500);
 </script>
 </body>
 </html>
