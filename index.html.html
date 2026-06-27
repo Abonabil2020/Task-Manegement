@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --teal-deep: #0A4D68; --teal-mid: #088395; --teal-light: #05BFDB; --teal-pale: #EBF8FA;
+    --white: #FFFFFF; --slate-50: #F8FAFC; --slate-100: #F1F5F9; --slate-200: #E2E8F0;
+    --slate-500: #64748B; --slate-700: #334155; --slate-900: #0F172A;
+    --red: #EF4444; --red-bg: #FEF2F2; --orange: #F97316; --orange-bg: #FFF7ED;
+    --yellow: #EAB308; --yellow-bg: #FEFCE8; --green: #22C55E; --green-bg: #F0FDF4;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08); --shadow-md: 0 4px 12px rgba(8,131,149,.12);
+    --shadow-lg: 0 8px 24px rgba(8,131,149,.16);
+  }
+  body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg,#EBF8FA,#F0F9FB,#E8F4F6); min-height: 100vh; color: var(--slate-900); direction: rtl; }
+  .header { background: linear-gradient(135deg,var(--teal-deep),var(--teal-mid)); padding: 0 32px; height: 72px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-lg); }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .header-icon { width: 44px; height: 44px; background: rgba(255,255,255,.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .header-title { color: white; font-size: 20px; font-weight: 700; }
+  .header-sub { color: rgba(255,255,255,.7); font-size: 12px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-date { color: rgba(255,255,255,.85); font-size: 13px; font-weight: 500; background: rgba(255,255,255,.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,.2); }
+  .sync-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.15); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,.2); }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+  .main { padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--slate-200); display: flex; align-items: center; gap: 14px; transition: transform .2s,box-shadow .2s; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .stat-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .stat-icon.teal{background:var(--teal-pale)} .stat-icon.red{background:var(--red-bg)} .stat-icon.orange{background:var(--orange-bg)} .stat-icon.green{background:var(--green-bg)}
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--slate-900); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--slate-500); font-weight: 500; margin-top: 2px; }
+  .content-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+  .card { background: var(--white); border-radius: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--slate-200); overflow: hidden; }
+  .card-header { padding: 18px 24px; border-bottom: 1px solid var(--slate-100); display: flex; align-items: center; gap: 10px; }
+  .card-header-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--teal-pale); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--slate-900); }
+  .card-body { padding: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
+  .form-input,.form-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 13px; color: var(--slate-900); background: var(--slate-50); transition: border-color .2s,box-shadow .2s; direction: rtl; }
+  .form-input:focus,.form-textarea:focus { outline: none; border-color: var(--teal-mid); box-shadow: 0 0 0 3px rgba(8,131,149,.1); background: white; }
+  .form-textarea { resize: vertical; min-height: 72px; }
+  .priority-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .priority-btn { padding: 7px 4px; border: 1.5px solid transparent; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .2s; text-align: center; }
+  .priority-btn.urgent{background:var(--red-bg);color:var(--red);border-color:#FECACA}
+  .priority-btn.high{background:var(--orange-bg);color:var(--orange);border-color:#FED7AA}
+  .priority-btn.medium{background:var(--yellow-bg);color:var(--yellow);border-color:#FEF08A}
+  .priority-btn.low{background:var(--green-bg);color:var(--green);border-color:#BBF7D0}
+  .priority-btn.selected{transform:scale(1.05);box-shadow:var(--shadow-sm)}
+  .priority-btn.urgent.selected{border-color:var(--red)} .priority-btn.high.selected{border-color:var(--orange)}
+  .priority-btn.medium.selected{border-color:var(--yellow)} .priority-btn.low.selected{border-color:var(--green)}
+  .submit-btn { width: 100%; padding: 13px; background: linear-gradient(135deg,var(--teal-mid),var(--teal-deep)); color: white; border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .table-toolbar { padding: 16px 24px; border-bottom: 1px solid var(--slate-100); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .search-box { position: relative; flex: 1; min-width: 160px; max-width: 280px; }
+  .search-box input { width: 100%; padding: 9px 14px 9px 36px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 13px; background: var(--slate-50); direction: rtl; }
+  .search-box input:focus { outline: none; border-color: var(--teal-mid); background: white; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--slate-500); font-size: 14px; }
+  .filter-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+  .filter-tab { padding: 6px 11px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all .2s; }
+  .filter-tab.active{background:var(--teal-pale);color:var(--teal-deep);border-color:var(--teal-light)}
+  .filter-tab:not(.active){background:var(--slate-100);color:var(--slate-500)}
+  .filter-tab:not(.active):hover{background:var(--slate-200)}
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--slate-50); }
+  th { padding: 12px 14px; text-align: right; font-size: 11px; font-weight: 700; color: var(--slate-500); letter-spacing: .5px; border-bottom: 1px solid var(--slate-200); white-space: nowrap; }
+  td { padding: 13px 14px; border-bottom: 1px solid var(--slate-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: var(--teal-pale); }
+  .task-name { font-size: 13px; font-weight: 600; color: var(--slate-900); }
+  .task-name.done { text-decoration: line-through; color: var(--slate-500); }
+  .date-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--slate-100); color: var(--slate-700); padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+  .priority-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .priority-tag.عاجل{background:var(--red-bg);color:var(--red)}
+  .priority-tag.عالية{background:var(--orange-bg);color:var(--orange)}
+  .priority-tag.متوسطة{background:var(--yellow-bg);color:#92400E}
+  .priority-tag.منخفضة{background:var(--green-bg);color:#166534}
+  .priority-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .notes-text { font-size: 12px; color: var(--slate-500); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actions { display: flex; align-items: center; gap: 5px; }
+  .action-btn { width: 30px; height: 30px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .2s; flex-shrink: 0; }
+  .gcal-btn{background:#E8F5E9;color:#1B873C} .gcal-btn:hover{background:#1B873C;color:white;transform:scale(1.1)}
+  .done-btn{background:var(--teal-pale);color:var(--teal-mid)} .done-btn:hover{background:var(--teal-mid);color:white;transform:scale(1.1)}
+  .delete-btn{background:var(--red-bg);color:var(--red)} .delete-btn:hover{background:var(--red);color:white;transform:scale(1.1)}
+  .status-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .status-chip.pending{background:#FFF7ED;color:#C2410C} .status-chip.done{background:var(--green-bg);color:#166534}
+  .empty-state { padding: 60px 24px; text-align: center; }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: .4; }
+  .empty-text { font-size: 15px; font-weight: 600; color: var(--slate-500); }
+  .empty-sub { font-size: 13px; color: var(--slate-400); margin-top: 4px; }
+  .loading-row td { text-align: center; padding: 40px; color: var(--slate-500); font-size: 13px; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--slate-200); border-top-color: var(--teal-mid); border-radius: 50%; animation: spin .7s linear infinite; margin-left: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--teal-deep); color: white; padding: 12px 24px; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  @media (max-width:900px) { .content-grid{grid-template-columns:1fr} .stats{grid-template-columns:repeat(2,1fr)} .main{padding:16px} .header{padding:0 16px} }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-icon">🏥</div>
+    <div>
+      <div class="header-title">عبدالرحمن نبيل زهران</div>
+      <div class="header-sub">لوحة إدارة وجدولة الأعمال — مشتركة</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sync-badge"><span class="sync-dot"></span> مزامنة مباشرة</div>
+    <div class="header-date" id="currentDate">⏰ ...</div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="stats">
+    <div class="stat-card"><div class="stat-icon teal">📋</div><div><div class="stat-num" id="totalCount">—</div><div class="stat-label">إجمالي المهام</div></div></div>
+    <div class="stat-card"><div class="stat-icon orange">⚡</div><div><div class="stat-num" id="urgentCount">—</div><div class="stat-label">مهام عاجلة</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">⏳</div><div><div class="stat-num" id="pendingCount">—</div><div class="stat-label">قيد التنفيذ</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num" id="doneCount">—</div><div class="stat-label">مكتملة</div></div></div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">➕</div>
+        <div class="card-title">إضافة مهمة جديدة</div>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">اسم المهمة *</label>
+          <input type="text" id="taskName" class="form-input" placeholder="مثال: مراجعة ملفات المرضى...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">التاريخ *</label>
+          <input type="date" id="taskDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">الأولوية *</label>
+          <div class="priority-grid">
+            <button class="priority-btn urgent selected" onclick="selectPriority(this,'عاجل')">🔴 عاجل</button>
+            <button class="priority-btn high" onclick="selectPriority(this,'عالية')">🟠 عالية</button>
+            <button class="priority-btn medium" onclick="selectPriority(this,'متوسطة')">🟡 متوسطة</button>
+            <button class="priority-btn low" onclick="selectPriority(this,'منخفضة')">🟢 منخفضة</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الملاحظات</label>
+          <textarea id="taskNotes" class="form-textarea" placeholder="أي تفاصيل أو تعليمات..."></textarea>
+        </div>
+        <button class="submit-btn" id="addBtn" onclick="addTask()">
+          <span>✨</span> إضافة للجدول المشترك
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="card-header-icon">📅</div>
+          <div class="card-title">جدول الأعمال المشترك</div>
+        </div>
+        <button onclick="loadTasks()" style="background:var(--teal-pale);color:var(--teal-deep);border:none;border-radius:8px;padding:6px 12px;font-family:Cairo,sans-serif;font-size:12px;font-weight:600;cursor:pointer;">🔄 تحديث</button>
+      </div>
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchBox" placeholder="ابحث عن مهمة..." oninput="renderTable()">
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setFilter('الكل',this)">الكل</button>
+          <button class="filter-tab" onclick="setFilter('عاجل',this)">عاجل</button>
+          <button class="filter-tab" onclick="setFilter('عالية',this)">عالية</button>
+          <button class="filter-tab" onclick="setFilter('جارية',this)">جارية</button>
+          <button class="filter-tab" onclick="setFilter('مكتملة',this)">مكتملة</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>اسم المهمة</th>
+              <th>التاريخ</th>
+              <th>الأولوية</th>
+              <th>الحالة</th>
+              <th>الملاحظات</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="taskTableBody">
+            <tr class="loading-row"><td colspan="6"><span class="spinner"></span> جاري تحميل المهام المشتركة...</td></tr>
+          </tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="empty-icon">📭</div>
+          <div class="empty-text">لا توجد مهام بعد</div>
+          <div class="empty-sub">أضف أول مهمة من النموذج المجاور</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let tasks = [];
+  let currentFilter = 'الكل';
+  let selectedPriority = 'عاجل';
+  const STORAGE_KEY = 'medical_complex_tasks';
+
+  // ---------- Storage ----------
+  async function saveTasks() {
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(tasks), true); // shared=true
+    } catch(e) { console.error('Save error', e); }
+  }
+
+  async function loadTasks() {
+    try {
+      const res = await window.storage.get(STORAGE_KEY, true); // shared=true
+      if (res && res.value) {
+        tasks = JSON.parse(res.value);
+      } else {
+        tasks = [];
+      }
+    } catch(e) {
+      tasks = [];
+    }
+    renderTable();
+  }
+
+  // ---------- UI ----------
+  function selectPriority(btn, val) {
+    document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedPriority = val;
+  }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderTable();
+  }
+
+  function formatDate(dt) {
+    if (!dt) return '—';
+    const [y,m,d] = dt.split('-');
+    const date = new Date(+y, +m-1, +d);
+    return date.toLocaleDateString('ar-EG', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function buildGCalLink(task) {
+    const dateStr = task.date.replace(/-/g,''); // YYYYMMDD
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: task.name,
+      dates: `${dateStr}/${dateStr}`,
+      details: `الأولوية: ${task.priority}\n\nالملاحظات:\n${task.notes || 'لا توجد ملاحظات'}`,
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  function renderTable() {
+    const search = document.getElementById('searchBox').value.toLowerCase();
+    const body = document.getElementById('taskTableBody');
+    const empty = document.getElementById('emptyState');
+    const pOrder = { 'عاجل':0, 'عالية':1, 'متوسطة':2, 'منخفضة':3 };
+
+    let filtered = tasks.filter(t => {
+      const matchSearch = t.name.toLowerCase().includes(search) || (t.notes||'').toLowerCase().includes(search);
+      const matchFilter =
+        currentFilter === 'الكل' ? true :
+        currentFilter === 'جارية' ? !t.done :
+        currentFilter === 'مكتملة' ? t.done :
+        t.priority === currentFilter;
+      return matchSearch && matchFilter;
+    });
+
+    filtered.sort((a,b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
+      return new Date(a.date) - new Date(b.date);
+    });
+
+    if (filtered.length === 0) {
+      body.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      body.innerHTML = filtered.map(t => `
+        <tr>
+          <td><div class="task-name ${t.done?'done':''}">${t.name}</div></td>
+          <td><span class="date-badge">📅 ${formatDate(t.date)}</span></td>
+          <td><span class="priority-tag ${t.priority}"><span class="priority-dot"></span>${t.priority}</span></td>
+          <td><span class="status-chip ${t.done?'done':'pending'}">${t.done?'✅ مكتملة':'⏳ جارية'}</span></td>
+          <td><div class="notes-text" title="${t.notes||''}">${t.notes||'—'}</div></td>
+          <td>
+            <div class="actions">
+              <button class="action-btn gcal-btn" title="إضافة إلى تقويم Google" onclick="openGCal('${t.id}')">📆</button>
+              <button class="action-btn done-btn" title="${t.done?'إلغاء الإكمال':'تحديد كمكتملة'}" onclick="toggleDone('${t.id}')">${t.done?'↩️':'✔️'}</button>
+              <button class="action-btn delete-btn" title="حذف" onclick="deleteTask('${t.id}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('totalCount').textContent = tasks.length;
+    document.getElementById('urgentCount').textContent = tasks.filter(t=>t.priority==='عاجل').length;
+    document.getElementById('pendingCount').textContent = tasks.filter(t=>!t.done).length;
+    document.getElementById('doneCount').textContent = tasks.filter(t=>t.done).length;
+  }
+
+  async function addTask() {
+    const name = document.getElementById('taskName').value.trim();
+    const date = document.getElementById('taskDate').value;
+    const notes = document.getElementById('taskNotes').value.trim();
+    if (!name) { showToast('⚠️ يرجى إدخال اسم المهمة'); return; }
+    if (!date) { showToast('⚠️ يرجى تحديد التاريخ'); return; }
+
+    const btn = document.getElementById('addBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جاري الحفظ...';
+
+    const task = {
+      id: Date.now().toString(),
+      name, date,
+      priority: selectedPriority,
+      notes,
+      done: false,
+      addedAt: new Date().toISOString()
+    };
+    tasks.unshift(task);
+    await saveTasks();
+    renderTable();
+
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDate').value = '';
+    document.getElementById('taskNotes').value = '';
+    btn.disabled = false;
+    btn.innerHTML = '<span>✨</span> إضافة للجدول المشترك';
+    showToast('✅ تمت الإضافة ومزامنتها للجميع!');
+  }
+
+  async function toggleDone(id) {
+    const t = tasks.find(t=>t.id===id);
+    if (!t) return;
+    t.done = !t.done;
+    await saveTasks();
+    renderTable();
+    showToast(t.done ? '✅ مكتملة وتمت المزامنة' : '↩️ تم إلغاء الإكمال');
+  }
+
+  async function deleteTask(id) {
+    tasks = tasks.filter(t=>t.id!==id);
+    await saveTasks();
+    renderTable();
+    showToast('🗑️ تم الحذف وتمت المزامنة');
+  }
+
+  function openGCal(id) {
+    const t = tasks.find(t=>t.id===id);
+    if (t) { window.open(buildGCalLink(t),'_blank'); showToast('📆 جاري فتح تقويم Google...'); }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 2800);
+  }
+
+  function defaultDatetime() {
+    const d = new Date(Date.now()+3600000);
+    d.setMinutes(0,0,0);
+    return d.toISOString().slice(0,16);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('currentDate').textContent =
+      '📅 ' + now.toLocaleDateString('ar-EG',{weekday:'long',month:'long',day:'numeric'}) +
+      ' — ' + now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  // Auto-refresh every 30 seconds to pick up changes from the other device
+  setInterval(loadTasks, 30000);
+  updateClock();
+  setInterval(updateClock, 60000);
+  loadTasks();
+</script>
+</body>
+</html>
