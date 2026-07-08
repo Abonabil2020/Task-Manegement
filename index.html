@@ -11,6 +11,7 @@
     --slate-500: #64748B; --slate-700: #334155; --slate-900: #0F172A;
     --red: #EF4444; --red-bg: #FEF2F2; --orange: #F97316; --orange-bg: #FFF7ED;
     --yellow: #EAB308; --yellow-bg: #FEFCE8; --green: #22C55E; --green-bg: #F0FDF4;
+    --star: #F59E0B; --star-bg: #FFFBEB;
     --shadow-sm: 0 1px 3px rgba(0,0,0,.08); --shadow-md: 0 4px 12px rgba(8,131,149,.12);
     --shadow-lg: 0 8px 24px rgba(8,131,149,.16);
   }
@@ -30,7 +31,7 @@
   .stat-card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--slate-200); display: flex; align-items: center; gap: 14px; transition: transform .2s,box-shadow .2s; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
   .stat-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-  .stat-icon.teal{background:var(--teal-pale)} .stat-icon.red{background:var(--red-bg)} .stat-icon.orange{background:var(--orange-bg)} .stat-icon.green{background:var(--green-bg)}
+  .stat-icon.teal{background:var(--teal-pale)} .stat-icon.red{background:var(--red-bg)} .stat-icon.orange{background:var(--orange-bg)} .stat-icon.green{background:var(--green-bg)} .stat-icon.star{background:var(--star-bg)}
   .stat-num { font-size: 28px; font-weight: 800; color: var(--slate-900); line-height: 1; }
   .stat-label { font-size: 12px; color: var(--slate-500); font-weight: 500; margin-top: 2px; }
   .content-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
@@ -74,8 +75,11 @@
   tr:last-child td { border-bottom: none; }
   tbody tr { transition: background .15s; }
   tbody tr:hover { background: var(--teal-pale); }
-  .task-name { font-size: 13px; font-weight: 600; color: var(--slate-900); }
+  tbody tr.important-row { background: var(--star-bg); }
+  tbody tr.important-row:hover { background: #FEF3C7; }
+  .task-name { font-size: 13px; font-weight: 600; color: var(--slate-900); display: flex; align-items: center; gap: 6px; }
   .task-name.done { text-decoration: line-through; color: var(--slate-500); }
+  .star-icon { font-size: 13px; }
   .date-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--slate-100); color: var(--slate-700); padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 500; white-space: nowrap; }
   .priority-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
   .priority-tag.عاجل{background:var(--red-bg);color:var(--red)}
@@ -83,10 +87,35 @@
   .priority-tag.متوسطة{background:var(--yellow-bg);color:#92400E}
   .priority-tag.منخفضة{background:var(--green-bg);color:#166534}
   .priority-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-  .notes-text { font-size: 12px; color: var(--slate-500); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .notes-text {
+    font-size: 12px;
+    color: var(--slate-500);
+    max-width: 260px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .notes-text.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .notes-more {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal-mid);
+  }
   .actions { display: flex; align-items: center; gap: 5px; }
   .action-btn { width: 30px; height: 30px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .2s; flex-shrink: 0; }
   .gcal-btn{background:#E8F5E9;color:#1B873C} .gcal-btn:hover{background:#1B873C;color:white;transform:scale(1.1)}
+  .edit-btn{background:#EFF6FF;color:#2563EB} .edit-btn:hover{background:#2563EB;color:white;transform:scale(1.1)}
+  .star-btn{background:var(--star-bg);color:var(--star)} .star-btn:hover{background:var(--star);color:white;transform:scale(1.1)}
+  .star-btn.active{background:var(--star);color:white}
   .done-btn{background:var(--teal-pale);color:var(--teal-mid)} .done-btn:hover{background:var(--teal-mid);color:white;transform:scale(1.1)}
   .delete-btn{background:var(--red-bg);color:var(--red)} .delete-btn:hover{background:var(--red);color:white;transform:scale(1.1)}
   .status-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
@@ -100,6 +129,27 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--teal-deep); color: white; padding: 12px 24px; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Edit Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal-card { background: var(--white); border-radius: 20px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); overflow: hidden; animation: modalIn .2s ease; }
+  @keyframes modalIn { from{opacity:0;transform:translateY(10px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--slate-100); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 15px; font-weight: 700; color: var(--slate-900); display: flex; align-items: center; gap: 8px; }
+  .modal-close { width: 30px; height: 30px; border: none; background: var(--slate-100); border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--slate-500); }
+  .modal-close:hover { background: var(--slate-200); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--slate-100); display: flex; gap: 10px; }
+  .btn-secondary { flex: 1; padding: 11px; background: var(--slate-100); color: var(--slate-700); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-secondary:hover { background: var(--slate-200); }
+  .btn-primary { flex: 1.4; padding: 11px; background: linear-gradient(135deg,var(--teal-mid),var(--teal-deep)); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .important-toggle { display: flex; align-items: center; gap: 10px; background: var(--slate-50); border: 1.5px solid var(--slate-200); border-radius: 10px; padding: 10px 14px; cursor: pointer; user-select: none; transition: all .2s; }
+  .important-toggle.active { background: var(--star-bg); border-color: var(--star); }
+  .important-toggle .star-icon { font-size: 16px; }
+  .important-toggle-label { font-size: 12px; font-weight: 600; color: var(--slate-700); }
+
   @media (max-width:900px) { .content-grid{grid-template-columns:1fr} .stats{grid-template-columns:repeat(2,1fr)} .main{padding:16px} .header{padding:0 16px} }
 </style>
 </head>
@@ -122,7 +172,7 @@
 <main class="main">
   <div class="stats">
     <div class="stat-card"><div class="stat-icon teal">📋</div><div><div class="stat-num" id="totalCount">—</div><div class="stat-label">إجمالي المهام</div></div></div>
-    <div class="stat-card"><div class="stat-icon orange">⚡</div><div><div class="stat-num" id="urgentCount">—</div><div class="stat-label">مهام عاجلة</div></div></div>
+    <div class="stat-card"><div class="stat-icon star">⭐</div><div><div class="stat-num" id="importantCount">—</div><div class="stat-label">مهام مهمة</div></div></div>
     <div class="stat-card"><div class="stat-icon red">⏳</div><div><div class="stat-num" id="pendingCount">—</div><div class="stat-label">قيد التنفيذ</div></div></div>
     <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num" id="doneCount">—</div><div class="stat-label">مكتملة</div></div></div>
   </div>
@@ -146,6 +196,12 @@
           <label class="form-label">الملاحظات</label>
           <textarea id="taskNotes" class="form-textarea" placeholder="أي تفاصيل أو تعليمات..."></textarea>
         </div>
+        <div class="form-group">
+          <div class="important-toggle" id="addImportantToggle" onclick="toggleAddImportant()">
+            <span class="star-icon">⭐</span>
+            <span class="important-toggle-label">مهمة عاجلة — ثبّتها فوق الجدول</span>
+          </div>
+        </div>
         <button class="submit-btn" id="addBtn" onclick="addTask()">
           <span>✨</span> إضافة للجدول المشترك
         </button>
@@ -168,6 +224,7 @@
         <div class="filter-tabs">
           <button class="filter-tab active" onclick="setFilter('الكل',this)">الكل</button>
           <button class="filter-tab" onclick="setFilter('جارية',this)">جارية</button>
+          <button class="filter-tab" onclick="setFilter('مهمة',this)">⭐ مهمة</button>
           <button class="filter-tab" onclick="setFilter('مكتملة',this)">مكتملة</button>
         </div>
       </div>
@@ -195,6 +252,40 @@
     </div>
   </div>
 </main>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">✏️ تعديل المهمة</div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">اسم المهمة *</label>
+        <input type="text" id="editTaskName" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">التاريخ *</label>
+        <input type="date" id="editTaskDate" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الملاحظات</label>
+        <textarea id="editTaskNotes" class="form-textarea"></textarea>
+      </div>
+      <div class="form-group">
+        <div class="important-toggle" id="editImportantToggle" onclick="toggleEditImportant()">
+          <span class="star-icon">⭐</span>
+          <span class="important-toggle-label">مهمة عاجلة — ثبّتها فوق الجدول</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeEditModal()">إلغاء</button>
+      <button class="btn-primary" onclick="saveEditTask()">💾 حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
  
 <div class="toast" id="toast"></div>
  
@@ -225,6 +316,10 @@
   let tasks = [];
   let currentFilter = 'الكل';
   let selectedPriority = 'عاجل';
+  let addIsImportant = false;
+  let editingTaskId = null;
+  let editIsImportant = false;
+  let expandedNotes = {};
  
   // ---------- Firebase Storage ----------
   async function saveTasks() {
@@ -267,16 +362,43 @@
       action: 'TEMPLATE',
       text: task.name,
       dates: `${dateStr}/${dateStr}`,
-      details: `الأولوية: ${task.priority}\n\nالملاحظات:\n${task.notes || 'لا توجد ملاحظات'}`,
+      details: `${task.important ? 'مهمة عاجلة ⭐\n\n' : ''}الملاحظات:\n${task.notes || 'لا توجد ملاحظات'}`,
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  // ---------- Add: important toggle ----------
+  function toggleAddImportant() {
+    addIsImportant = !addIsImportant;
+    document.getElementById('addImportantToggle').classList.toggle('active', addIsImportant);
+  }
+
+  // ---------- Notes expand/collapse ----------
+  function escapeHtml(str) {
+    return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function toggleNotes(id) {
+    expandedNotes[id] = !expandedNotes[id];
+    renderTable();
+  }
+
+  function renderNotesCell(t) {
+    const raw = t.notes || '';
+    if (!raw) return '<div class="notes-text">—</div>';
+    const isLong = raw.length > 80 || raw.split('\n').length > 2;
+    const expanded = !!expandedNotes[t.id];
+    const cls = (isLong && !expanded) ? 'notes-text collapsed' : 'notes-text';
+    const toggleBtn = isLong
+      ? `<span class="notes-more" onclick="toggleNotes('${t.id}')">${expanded ? 'إخفاء ▲' : 'عرض المزيد ▼'}</span>`
+      : '';
+    return `<div class="${cls}" title="${escapeHtml(raw)}" onclick="toggleNotes('${t.id}')">${escapeHtml(raw)}</div>${toggleBtn}`;
   }
  
   function renderTable() {
     const search = document.getElementById('searchBox').value.toLowerCase();
     const body = document.getElementById('taskTableBody');
     const empty = document.getElementById('emptyState');
-    const pOrder = { 'عاجل':0, 'عالية':1, 'متوسطة':2, 'منخفضة':3 };
  
     let filtered = tasks.filter(t => {
       const matchSearch = t.name.toLowerCase().includes(search) || (t.notes||'').toLowerCase().includes(search);
@@ -284,13 +406,14 @@
         currentFilter === 'الكل' ? true :
         currentFilter === 'جارية' ? !t.done :
         currentFilter === 'مكتملة' ? t.done :
-        t.priority === currentFilter;
+        currentFilter === 'مهمة' ? !!t.important :
+        true;
       return matchSearch && matchFilter;
     });
  
     filtered.sort((a,b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
-      if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
+      if (!!a.important !== !!b.important) return a.important ? -1 : 1;
       return new Date(a.date) - new Date(b.date);
     });
  
@@ -300,13 +423,15 @@
     } else {
       empty.style.display = 'none';
       body.innerHTML = filtered.map(t => `
-        <tr>
-          <td><div class="task-name ${t.done?'done':''}">${t.name}</div></td>
+        <tr class="${t.important ? 'important-row' : ''}">
+          <td><div class="task-name ${t.done?'done':''}">${t.important ? '<span class="star-icon">⭐</span>' : ''}${t.name}</div></td>
           <td><span class="date-badge">📅 ${formatDate(t.date)}</span></td>
           <td><span class="status-chip ${t.done?'done':'pending'}">${t.done?'✅ مكتملة':'⏳ جارية'}</span></td>
-          <td><div class="notes-text" title="${t.notes||''}">${t.notes||'—'}</div></td>
+          <td>${renderNotesCell(t)}</td>
           <td>
             <div class="actions">
+              <button class="action-btn star-btn ${t.important?'active':''}" title="${t.important?'إلغاء التمييز كمهمة':'تمييز كمهمة عاجلة'}" onclick="toggleImportant('${t.id}')">⭐</button>
+              <button class="action-btn edit-btn" title="تعديل" onclick="openEditModal('${t.id}')">✏️</button>
               <button class="action-btn gcal-btn" title="إضافة إلى تقويم Google" onclick="openGCal('${t.id}')">📆</button>
               <button class="action-btn done-btn" title="${t.done?'إلغاء الإكمال':'تحديد كمكتملة'}" onclick="toggleDone('${t.id}')">${t.done?'↩️':'✔️'}</button>
               <button class="action-btn delete-btn" title="حذف" onclick="deleteTask('${t.id}')">🗑️</button>
@@ -317,7 +442,7 @@
     }
  
     document.getElementById('totalCount').textContent = tasks.length;
-    document.getElementById('urgentCount').textContent = tasks.filter(t=>t.priority==='عاجل').length;
+    document.getElementById('importantCount').textContent = tasks.filter(t=>t.important).length;
     document.getElementById('pendingCount').textContent = tasks.filter(t=>!t.done).length;
     document.getElementById('doneCount').textContent = tasks.filter(t=>t.done).length;
   }
@@ -339,6 +464,7 @@
       priority: 'متوسطة',
       notes,
       done: false,
+      important: addIsImportant,
       addedAt: new Date().toISOString()
     };
     tasks.unshift(task);
@@ -348,6 +474,8 @@
     document.getElementById('taskName').value = '';
     document.getElementById('taskDate').value = '';
     document.getElementById('taskNotes').value = '';
+    addIsImportant = false;
+    document.getElementById('addImportantToggle').classList.remove('active');
     btn.disabled = false;
     btn.innerHTML = '<span>✨</span> إضافة للجدول المشترك';
     showToast('✅ تمت الإضافة ومزامنتها للجميع!');
@@ -361,6 +489,15 @@
     renderTable();
     showToast(t.done ? '✅ مكتملة وتمت المزامنة' : '↩️ تم إلغاء الإكمال');
   }
+
+  async function toggleImportant(id) {
+    const t = tasks.find(t=>t.id===id);
+    if (!t) return;
+    t.important = !t.important;
+    await saveTasks();
+    renderTable();
+    showToast(t.important ? '⭐ تم تثبيت المهمة فوق الجدول' : '↩️ تم إلغاء تمييز المهمة');
+  }
  
   async function deleteTask(id) {
     tasks = tasks.filter(t=>t.id!==id);
@@ -368,6 +505,55 @@
     renderTable();
     showToast('🗑️ تم الحذف وتمت المزامنة');
   }
+
+  // ---------- Edit Modal ----------
+  function openEditModal(id) {
+    const t = tasks.find(t=>t.id===id);
+    if (!t) return;
+    editingTaskId = id;
+    editIsImportant = !!t.important;
+    document.getElementById('editTaskName').value = t.name;
+    document.getElementById('editTaskDate').value = t.date;
+    document.getElementById('editTaskNotes').value = t.notes || '';
+    document.getElementById('editImportantToggle').classList.toggle('active', editIsImportant);
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeEditModal() {
+    editingTaskId = null;
+    document.getElementById('editModal').classList.remove('show');
+  }
+
+  function toggleEditImportant() {
+    editIsImportant = !editIsImportant;
+    document.getElementById('editImportantToggle').classList.toggle('active', editIsImportant);
+  }
+
+  async function saveEditTask() {
+    if (!editingTaskId) return;
+    const name = document.getElementById('editTaskName').value.trim();
+    const date = document.getElementById('editTaskDate').value;
+    const notes = document.getElementById('editTaskNotes').value.trim();
+    if (!name) { showToast('⚠️ يرجى إدخال اسم المهمة'); return; }
+    if (!date) { showToast('⚠️ يرجى تحديد التاريخ'); return; }
+
+    const t = tasks.find(t=>t.id===editingTaskId);
+    if (!t) { closeEditModal(); return; }
+    t.name = name;
+    t.date = date;
+    t.notes = notes;
+    t.important = editIsImportant;
+
+    await saveTasks();
+    renderTable();
+    closeEditModal();
+    showToast('✅ تم حفظ التعديلات ومزامنتها');
+  }
+
+  // Close modal when clicking outside the card
+  document.getElementById('editModal').addEventListener('click', (e) => {
+    if (e.target.id === 'editModal') closeEditModal();
+  });
  
   function openGCal(id) {
     const t = tasks.find(t=>t.id===id);
